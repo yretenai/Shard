@@ -1,0 +1,3 @@
+[submodule "DragonLib"]
+	path = DragonLib
+	url = git@github.com:yretenai/DragonLib.git

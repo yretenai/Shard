@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\DragonLib\DragonLib\DragonLib.csproj"/>
+		<ProjectReference Include="..\Shard.SDK\Shard.SDK.csproj"/>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="IronCompress" Version="1.4.0"/>
+		<PackageReference Include="Semver" Version="3.0.0-beta.0"/>
+	</ItemGroup>
+
+
+</Project>
