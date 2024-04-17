@@ -9,7 +9,7 @@ using Sharder.Flags;
 namespace Sharder.Commands;
 
 [Command(typeof(ShardFlags), "stats", "Lists stats and versions of shard")]
-public record StatsCommand : ShardCommand {
+internal record StatsCommand : ShardCommand {
 	public StatsCommand(ShardFlags flags) : base(flags) {
 		var occurences = ((IShardArchive) Archive).Records.SelectMany(x => x.BlockHashes).GroupBy(x => x).ToDictionary(x => x.Key, y => y.Count());
 		foreach (var version in Archive.Versions) {

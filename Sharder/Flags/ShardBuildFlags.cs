@@ -6,7 +6,7 @@ using Shard.TOC;
 
 namespace Sharder.Flags;
 
-public record ShardBuildFlags : ShardIOFlags {
+internal record ShardBuildFlags : ShardIOFlags {
 	[Flag("com", Help = "Compression Type to use")]
 	public ShardCompressType CompressionType { get; set; } = ShardCompressType.ZStd;
 

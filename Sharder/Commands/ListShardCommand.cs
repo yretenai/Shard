@@ -8,7 +8,7 @@ using Sharder.Flags;
 namespace Sharder.Commands;
 
 [Command(typeof(ShardIFlags), "list", "Lists files in a shard")]
-public record ListShardCommand : ShardCommand {
+internal record ListShardCommand : ShardCommand {
 	public ListShardCommand(ShardIFlags flags) : base(flags) {
 		if (!string.IsNullOrEmpty(flags.Version)) {
 			ListVersion(flags.Version);

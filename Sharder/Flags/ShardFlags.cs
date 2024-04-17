@@ -4,7 +4,7 @@ using DragonLib.CommandLine;
 
 namespace Sharder.Flags;
 
-public record ShardFlags : CommandLineFlags {
+internal record ShardFlags : CommandLineFlags {
 	[Flag("path", Positional = 0, Help = "Path the shard files are stored", IsRequired = true)]
 	public string ShardPath { get; set; } = null!;
 
@@ -12,7 +12,7 @@ public record ShardFlags : CommandLineFlags {
 	public string Name { get; set; } = null!;
 }
 
-public record ShardIOFlags : ShardFlags {
+internal record ShardIOFlags : ShardFlags {
 	[Flag("paths", Positional = 2, Help = "The paths to process")]
 	public string? Path { get; set; } = null!;
 
@@ -20,7 +20,7 @@ public record ShardIOFlags : ShardFlags {
 	public string? Version { get; set; }
 }
 
-public record ShardIFlags : ShardFlags {
+internal record ShardIFlags : ShardFlags {
 	[Flag("version", Positional = 2, Help = "The version of to save as")]
 	public string? Version { get; set; }
 }

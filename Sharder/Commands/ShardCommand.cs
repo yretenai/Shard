@@ -5,7 +5,7 @@ using Sharder.Flags;
 
 namespace Sharder.Commands;
 
-public abstract record ShardCommand : IDisposable {
+internal abstract record ShardCommand : IDisposable {
 	protected ShardCommand(ShardFlags flags, bool @readonly = true) {
 		var rebuild = flags as ShardBuildFlags;
 		// ReSharper disable once WithExpressionModifiesAllMembers

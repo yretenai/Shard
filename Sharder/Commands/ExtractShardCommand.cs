@@ -8,7 +8,7 @@ using Sharder.Flags;
 namespace Sharder.Commands;
 
 [Command(typeof(ShardIOFlags), "extract", "Extracts files to a shard")]
-public record ExtractShardCommand : ShardCommand {
+internal record ExtractShardCommand : ShardCommand {
 	public ExtractShardCommand(ShardIOFlags flags) : base(flags) {
 		if (string.IsNullOrEmpty(flags.Path)) {
 			throw new InvalidOperationException("Path must be defined.");

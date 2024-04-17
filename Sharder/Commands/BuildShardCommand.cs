@@ -6,7 +6,7 @@ using Sharder.Flags;
 namespace Sharder.Commands;
 
 [Command(typeof(ShardBuildFlags), "build", "Adds files to a shard")]
-public record BuildShardCommand : ShardCommand {
+internal record BuildShardCommand : ShardCommand {
 	public BuildShardCommand(ShardBuildFlags flags) : base(flags, false) {
 		if (string.IsNullOrEmpty(flags.Path)) {
 			throw new InvalidOperationException("Path must be defined.");
