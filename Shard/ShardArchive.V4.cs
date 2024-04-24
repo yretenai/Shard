@@ -22,7 +22,7 @@ public partial class ShardArchive {
 				var slice = fullBuffer.Memory.Span[..header[0].CompressSize];
 				toc.ReadExactly(slice);
 				theToc = new MemoryStream();
-				theToc.Write(DecompressData(header[0].CompressType, slice, out var disposable));
+				theToc.Write(DecompressData(header[0].CompressType, slice, (int) header[0].Size, out var disposable));
 				theToc.Position = 0;
 				disposable?.Dispose();
 			}

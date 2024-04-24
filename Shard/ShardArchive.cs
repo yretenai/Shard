@@ -11,6 +11,7 @@ using Blake3;
 using DragonLib;
 using IronCompress;
 using Serilog;
+using Shard.SDK;
 using Shard.SDK.Models;
 using Shard.TOC;
 
@@ -31,6 +32,7 @@ public record ShardOptions {
 	public bool IsReadOnly { get; init; }
 	public ushort Alignment { get; init; }
 	public ushort HeaderAlignment { get; init; }
+	public ShardCompressor? CustomCompressor { get; init; }
 }
 
 public sealed partial class ShardArchive : IShardArchive, IDisposable {
@@ -50,6 +52,7 @@ public sealed partial class ShardArchive : IShardArchive, IDisposable {
 		Log.Information("Loading shard archive {Name} at {Path}", Name, ShardPath);
 
 		CompressType = options.CompressType;
+		CustomCompressor = options.CustomCompressor;
 		IsReadOnly = options.IsReadOnly;
 
 		var tocPath = Path.Combine(ShardPath, $"{Name}.shardtoc");
@@ -123,6 +126,7 @@ public sealed partial class ShardArchive : IShardArchive, IDisposable {
 				LoadTOCV3(toc);
 				break;
 			case ShardTOCVersion.StoreAttributes:
+			case ShardTOCVersion.CustomCompressor:
 				LoadTOCV4(toc);
 				break;
 			default:
@@ -161,6 +165,7 @@ public sealed partial class ShardArchive : IShardArchive, IDisposable {
 	public string ShardPath { get; }
 	public string Name { get; }
 	public ShardCompressType CompressType { get; }
+	public ShardCompressor? CustomCompressor { get; }
 	public bool IsReadOnly { get; }
 	public List<ShardTOCRecord> Records { get; }
 	public List<string> Versions { get; }
@@ -479,7 +484,7 @@ public sealed partial class ShardArchive : IShardArchive, IDisposable {
 				stream.ReadExactly(inChunk.Memory.Span[..blockEntry.Footer.CompressedSize]);
 
 				var slice = inChunk.Memory.Span[..blockEntry.Footer.CompressedSize];
-				DecompressData(blockEntry.Footer.CompressionType, slice, out var disposable).CopyTo(data[offset..]);
+				DecompressData(blockEntry.Footer.CompressionType, slice, blockEntry.Footer.Size, out var disposable).CopyTo(data[offset..]);
 				disposable?.Dispose();
 				offset += blockEntry.Footer.Size;
 			}
@@ -508,6 +513,20 @@ public sealed partial class ShardArchive : IShardArchive, IDisposable {
 		disposable = null;
 
 		switch (providedType) {
+			case ShardCompressType.Custom: {
+				if (CustomCompressor == null) {
+					throw new InvalidOperationException("Tried using a custom compressor when none exists");
+				}
+
+				var compressed = CustomCompressor.Compress(slice, out disposable);
+				if (compressed.Length < slice.Length) {
+					type = CompressType;
+					return compressed;
+				}
+				disposable?.Dispose();
+				disposable = null;
+				break;
+			}
 			case ShardCompressType.ZStd:
 			case ShardCompressType.LZO:
 			case ShardCompressType.LZ4:
@@ -520,33 +539,55 @@ public sealed partial class ShardArchive : IShardArchive, IDisposable {
 					                               ShardCompressType.Snappy => Codec.Snappy,
 					                               _ => throw new UnreachableException(),
 				                               }, slice);
-				disposable = compressed;
-				type = compressed.Length < slice.Length ? CompressType : ShardCompressType.None;
-				return type is not ShardCompressType.None ? compressed.AsSpan() : slice;
+				if (compressed.Length < slice.Length) {
+					disposable = compressed;
+					type = CompressType;
+					return compressed.AsSpan();
+				}
+
+				compressed.Dispose();
+				break;
 			}
 			case ShardCompressType.ZLib: {
 				fixed (byte* ptr = &slice.GetPinnableReference()) {
 					using var unmanaged = new UnmanagedMemoryStream(ptr, slice.Length);
 					using var stream = new ZLibStream(unmanaged, CompressionLevel.SmallestSize, false);
 					var output = new MemoryStream();
-					disposable = output;
 					stream.CopyTo(output);
 					stream.Flush();
 					output.Flush();
-					type = output.Length < slice.Length ? CompressType : ShardCompressType.None;
-					return type is not ShardCompressType.None ? output.GetBuffer().AsSpan(0, (int) output.Length) : slice;
+					if (output.Length < slice.Length) {
+						disposable = output;
+						type = CompressType;
+						return output.GetBuffer().AsSpan(0, (int) output.Length);
+					}
+
+					output.Dispose();
+					break;
 				}
 			}
 			case ShardCompressType.None:
 				return slice;
 			default: throw new ArgumentOutOfRangeException(nameof(providedType));
 		}
+
+		return slice;
 	}
 
-	private unsafe Span<byte> DecompressData(ShardCompressType type, Span<byte> slice, out IDisposable? disposable) {
+	private unsafe Span<byte> DecompressData(ShardCompressType type, Span<byte> slice, int size, out IDisposable? disposable) {
 		disposable = null;
 
 		switch (type) {
+			case ShardCompressType.Custom: {
+				if (CustomCompressor == null) {
+					throw new InvalidOperationException("Tried using a custom compressor when none exists");
+				}
+
+				var pool = MemoryPool<byte>.Shared.Rent(size);
+				disposable = pool;
+				var sz = CustomCompressor.Decompress(slice, pool.Memory[..size].Span);
+				return pool.Memory[..sz].Span;
+			}
 			case ShardCompressType.ZStd:
 			case ShardCompressType.LZO:
 			case ShardCompressType.LZ4:

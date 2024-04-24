@@ -16,7 +16,7 @@ public partial class ShardArchive {
 			var slice = fullBuffer.Memory.Span[..header[0].CompressSize];
 			toc.ReadExactly(slice);
 			using var newToc = new MemoryStream();
-			newToc.Write(DecompressData(header[0].CompressType, slice, out var disposable));
+			newToc.Write(DecompressData(header[0].CompressType, slice, (int) header[0].Size, out var disposable));
 			newToc.Position = 0;
 			disposable?.Dispose();
 			LoadTOCV2(newToc);

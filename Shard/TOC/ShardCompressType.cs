@@ -9,4 +9,5 @@ public enum ShardCompressType {
 	LZ4,
 	Snappy,
 	ZLib,
+	Custom = -1,
 }
