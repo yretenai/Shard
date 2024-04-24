@@ -6,14 +6,13 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Blake3;
 using DragonLib;
-using Shard.TOC.V1;
-using Shard.TOC.V2;
+using Shard.TOC;
 
 namespace Shard;
 
 public partial class ShardArchive {
 	private void LoadTOCV2(Stream toc) {
-		var recordSize = Unsafe.SizeOf<ShardTOCRecord>() * Header.RecordCount;
+		var recordSize = Unsafe.SizeOf<ShardTOCRecordV2>() * Header.RecordCount;
 		var versionSize = sizeof(int) * Header.VersionCount;
 		var nameSize = sizeof(int) * Header.NameCount;
 		var blockSize = Unsafe.SizeOf<ShardTOCBlock>() * Header.BlockCount;
@@ -23,8 +22,10 @@ public partial class ShardArchive {
 		if (Header.RecordCount > 0) {
 			using var rented = MemoryPool<byte>.Shared.Rent(recordSize);
 			toc.ReadExactly(rented.Memory.Span[..recordSize]);
-			var records = MemoryMarshal.Cast<byte, ShardTOCRecord>(rented.Memory.Span[..recordSize]);
-			Records.AddRange(records);
+			var records = MemoryMarshal.Cast<byte, ShardTOCRecordV2>(rented.Memory.Span[..recordSize]);
+			foreach (var record in records) {
+				Records.Add(record.ToLatest());
+			}
 			toc.Align(Header.HeaderAlignment);
 		}
 

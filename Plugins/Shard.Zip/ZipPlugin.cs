@@ -14,7 +14,7 @@ namespace Shard.Zip;
 public class ZipPlugin : ShardPlugin {
 	public bool CanRecode => false;
 
-	public bool CanProcess(Stream stream, string path) {
+	public bool CanProcess(Stream stream, string path, ShardRecordMetadata metadata) {
 		var pos = stream.Position;
 		try {
 			if (stream.Length < Unsafe.SizeOf<ZipEndOfCentralDirectory>()) {
@@ -33,7 +33,7 @@ public class ZipPlugin : ShardPlugin {
 		}
 	}
 
-	public void Decode(Stream stream, string path, IShardArchive archive) {
+	public void Decode(Stream stream, string path, IShardArchive archive, ShardRecordMetadata metadata) {
 		using var zip = new ZipFile(stream);
 
 		foreach (var entry in zip.Entries) {
@@ -45,7 +45,12 @@ public class ZipPlugin : ShardPlugin {
 			using var data = zip.Open(entry);
 			using var buffer = MemoryPool<byte>.Shared.Rent((int) entry.Length);
 			data.ReadExactly(buffer.Memory.Span[..(int) entry.Length]);
-			archive.AddRecord(entry.Path, buffer.Memory.Span[..(int) entry.Length]);
+			var meta = new ShardRecordMetadata {
+				Timestamp = entry.Header.ModDateTime.ToUnixTimeMilliseconds(),
+				Attributes = entry.Header.ExternalFileAttributes,
+				Permissions = (entry.Header.ExternalFileAttributes >> 16) & 0x1FF,
+			};
+			archive.ProcessFile(entry.Path, buffer.Memory.Span[..(int) entry.Length], meta);
 		}
 	}
 

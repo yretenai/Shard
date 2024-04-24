@@ -7,5 +7,6 @@ public enum ShardTOCVersion : uint {
 	AddEncoder,
 	FixAlignment,
 	CompressWholeTOC,
-	Latest = CompressWholeTOC,
+	StoreAttributes,
+	Latest = StoreAttributes,
 }

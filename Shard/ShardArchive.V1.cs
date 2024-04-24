@@ -6,8 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Blake3;
 using DragonLib;
-using Shard.TOC.V1;
-using Shard.TOC.V2;
+using Shard.TOC;
 
 namespace Shard;
 
@@ -25,7 +24,7 @@ public partial class ShardArchive {
 			toc.ReadExactly(rented.Memory.Span[..recordSize]);
 			var records = MemoryMarshal.Cast<byte, ShardTOCRecordV1>(rented.Memory.Span[..recordSize]);
 			foreach (var record in records) {
-				Records.Add(new ShardTOCRecord(record));
+				Records.Add(record.ToLatest());
 			}
 
 			toc.Align(Header.HeaderAlignment);

@@ -23,4 +23,16 @@ public readonly record struct ZipCentralDirectoryHeader {
 	public ushort InternalFileAttributes { get; init; }
 	public uint ExternalFileAttributes { get; init; }
 	public uint Offset { get; init; }
+
+	public DateTimeOffset ModDateTime {
+		get {
+			var s = (ModTime & 0x1F) << 1;
+			var m = (ModTime & 0x7E0) >> 5;
+			var h = (ModTime & 0xF800) >> 11;
+			var d = ModDate & 0x1F;
+			var M = ( ModDate & 0x1E0) >> 5;
+			var y = ( ModDate & 0xFE00) >> 9;
+			return new DateTimeOffset(y + 1980, M, d, h, m, s, TimeSpan.Zero);
+		}
+	}
 }

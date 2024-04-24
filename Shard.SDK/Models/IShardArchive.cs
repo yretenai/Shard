@@ -8,7 +8,7 @@ public interface IShardArchive {
 
 	public Span<byte> GetRecord(IShardRecord record);
 	public Span<byte> GetRecord(string record, string version);
-	public void AddRecord(string name, Span<byte> data, string? encoder = null, ShardRecordFlags flags = ShardRecordFlags.None);
-	public void ProcessFile(string name, Span<byte> data);
-	public void ProcessFile(string name, Stream data);
+	public void AddRecord(string name, Span<byte> data, ShardRecordMetadata metadata);
+	public void ProcessFile(string name, Span<byte> data, ShardRecordMetadata? metadata);
+	public void ProcessFile(string name, Stream data, ShardRecordMetadata? metadata);
 }

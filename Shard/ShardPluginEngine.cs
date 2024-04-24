@@ -50,10 +50,10 @@ public static class ShardPluginEngine {
 		}
 	}
 
-	public static void Decode(string name, Stream data, ShardArchive archive) {
+	public static void Decode(string name, Stream data, ShardArchive archive, ShardRecordMetadata metadata) {
 		foreach (var plugin in Plugins.Values.OrderByDescending(x => x.Info.Priority).Select(x => x.Plugin)) {
-			if (plugin.CanProcess(data, name)) {
-				plugin.Decode(data, name, archive);
+			if (plugin.CanProcess(data, name, metadata)) {
+				plugin.Decode(data, name, archive, metadata);
 				return;
 			}
 		}

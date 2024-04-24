@@ -3,7 +3,6 @@
 using System.Buffers;
 using System.Runtime.InteropServices;
 using Shard.TOC;
-using Shard.TOC.V3;
 
 namespace Shard;
 

@@ -13,9 +13,6 @@ using IronCompress;
 using Serilog;
 using Shard.SDK.Models;
 using Shard.TOC;
-using Shard.TOC.V1;
-using Shard.TOC.V2;
-using Shard.TOC.V3;
 
 namespace Shard;
 
@@ -125,6 +122,9 @@ public sealed partial class ShardArchive : IShardArchive, IDisposable {
 			case ShardTOCVersion.CompressWholeTOC:
 				LoadTOCV3(toc);
 				break;
+			case ShardTOCVersion.StoreAttributes:
+				LoadTOCV4(toc);
+				break;
 			default:
 				throw new InvalidDataException("Invalid version number.");
 		}
@@ -202,7 +202,7 @@ public sealed partial class ShardArchive : IShardArchive, IDisposable {
 		return record.Size == 0 ? Span<byte>.Empty : GetRecord(record);
 	}
 
-	public void AddRecord(string name, Span<byte> data, string? encoder = null, ShardRecordFlags flags = ShardRecordFlags.None) {
+	public void AddRecord(string name, Span<byte> data, ShardRecordMetadata metadata) {
 		if (IsReadOnly) {
 			return;
 		}
@@ -221,9 +221,12 @@ public sealed partial class ShardArchive : IShardArchive, IDisposable {
 				Hash = hash,
 				BlockIndex = map.BlockIndex,
 				BlockCount = map.BlockCount,
-				EncoderIndex = encoder == null ? -1 : AddName(encoder),
-				Flags = flags,
+				EncoderIndex = metadata.Encoder == null ? -1 : AddName(metadata.Encoder),
+				Flags = metadata.Flags,
 				Size = data.Length,
+				Timestamp = metadata.Timestamp,
+				Permissions = metadata.Permissions == 0 ? 0x1FF : metadata.Permissions,
+				Attributes = metadata.Attributes,
 			});
 			return;
 		}
@@ -300,21 +303,24 @@ public sealed partial class ShardArchive : IShardArchive, IDisposable {
 			Hash = hash,
 			BlockIndex = blockIndex,
 			BlockCount = blockCount,
-			EncoderIndex = encoder == null ? -1 : AddName(encoder),
-			Flags = flags,
+			EncoderIndex = metadata.Encoder == null ? -1 : AddName(metadata.Encoder),
+			Flags = metadata.Flags,
 			Size = data.Length,
+			Timestamp = metadata.Timestamp,
+			Permissions = metadata.Permissions == 0 ? 0x1FF : metadata.Permissions,
+			Attributes = metadata.Attributes,
 		});
 	}
 
-	public unsafe void ProcessFile(string name, Span<byte> data) {
+	public unsafe void ProcessFile(string name, Span<byte> data, ShardRecordMetadata? metadata = null) {
 		fixed (byte* pin = &data.GetPinnableReference()) {
 			using var stream = new UnmanagedMemoryStream(pin, data.Length);
-			ProcessFile(name, stream);
+			ProcessFile(name, stream, metadata);
 		}
 	}
 
-	public void ProcessFile(string name, Stream data) {
-		ShardPluginEngine.Decode(name, data, this);
+	public void ProcessFile(string name, Stream data, ShardRecordMetadata? metadata = null) {
+		ShardPluginEngine.Decode(name, data, this, metadata.GetValueOrDefault());
 	}
 
 	private void DumpTOCMetrics() {
@@ -490,6 +496,9 @@ public sealed partial class ShardArchive : IShardArchive, IDisposable {
 			Hash = record.Hash,
 			BlockHashes = BlockIndices.Skip(record.BlockIndex).Take(record.BlockCount).Select(x => Blocks[x].Footer.BlockHash),
 			Flags = record.Flags,
+			Timestamp = record.Timestamp,
+			Permissions = record.Permissions == 0 ? 0x1FF : record.Permissions,
+			Attributes = record.Attributes,
 			Record = record,
 		};
 	}

@@ -3,7 +3,7 @@
 using System.Runtime.InteropServices;
 using Blake3;
 
-namespace Shard.TOC.V1;
+namespace Shard.TOC;
 
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public record struct ShardBlockHeader {

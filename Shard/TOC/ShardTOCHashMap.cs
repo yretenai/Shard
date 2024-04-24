@@ -2,7 +2,7 @@
 
 using System.Runtime.InteropServices;
 
-namespace Shard.TOC.V1;
+namespace Shard.TOC;
 
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public record struct ShardTOCHashMap {

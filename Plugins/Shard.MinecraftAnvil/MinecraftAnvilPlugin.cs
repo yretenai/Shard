@@ -16,9 +16,9 @@ public class MinecraftAnvilPlugin : ShardPlugin {
 
 	public bool CanRecode => true;
 
-	public bool CanProcess(Stream stream, string path) => (path.EndsWith(".mca", StringComparison.OrdinalIgnoreCase) || path.EndsWith(".mcr", StringComparison.OrdinalIgnoreCase)) && stream.Length >= 0x2000;
+	public bool CanProcess(Stream stream, string path, ShardRecordMetadata metadata) => (path.EndsWith(".mca", StringComparison.OrdinalIgnoreCase) || path.EndsWith(".mcr", StringComparison.OrdinalIgnoreCase)) && stream.Length >= 0x2000;
 
-	public unsafe void Decode(Stream stream, string path, IShardArchive archive) {
+	public unsafe void Decode(Stream stream, string path, IShardArchive archive, ShardRecordMetadata metadata) {
 		Span<uint> regionBuffer = stackalloc uint[0x800];
 		Span<uint> newRegionBuffer = stackalloc uint[0xC00];
 		stream.ReadExactly(MemoryMarshal.AsBytes(regionBuffer));
@@ -78,8 +78,8 @@ public class MinecraftAnvilPlugin : ShardPlugin {
 		}
 
 		// save timestamps.
-		archive.AddRecord(path, MemoryMarshal.AsBytes(newRegionBuffer), Encoder);
-		archive.AddRecord($"{path}.chunks", outputTmp.ToArray(), null, ShardRecordFlags.Hidden);
+		archive.AddRecord(path, MemoryMarshal.AsBytes(newRegionBuffer), new ShardRecordMetadata { Encoder = Encoder });
+		archive.AddRecord($"{path}.chunks", outputTmp.ToArray(), new ShardRecordMetadata { Flags = ShardRecordFlags.Hidden });
 	}
 
 	public unsafe Span<byte> Encode(Span<byte> data, IShardRecord record, IShardArchive archive) {

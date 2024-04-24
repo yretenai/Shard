@@ -2,7 +2,6 @@
 
 using Blake3;
 using Shard.SDK.Models;
-using Shard.TOC.V2;
 
 namespace Shard;
 
@@ -14,4 +13,7 @@ public readonly record struct ShardRecord : IShardRecord {
 	public Hash Hash { get; init; }
 	public IEnumerable<Hash> BlockHashes { get; init; }
 	public ShardRecordFlags Flags { get; init; }
+	public long Timestamp { get; init; }
+	public ulong Permissions { get; init; }
+	public ulong Attributes { get; init; }
 }

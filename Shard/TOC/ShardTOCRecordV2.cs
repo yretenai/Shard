@@ -2,24 +2,10 @@
 
 using Blake3;
 using Shard.SDK.Models;
-using Shard.TOC.V1;
 
-namespace Shard.TOC.V2;
+namespace Shard.TOC;
 
-public record struct ShardTOCRecord {
-	public ShardTOCRecord() { }
-
-	public ShardTOCRecord(ShardTOCRecordV1 v1) {
-		NameIndex = v1.NameIndex;
-		VersionIndex = v1.VersionIndex;
-		Hash = v1.Hash;
-		Size = v1.Size;
-		BlockIndex = v1.BlockIndex;
-		BlockCount = v1.BlockCount;
-		EncoderIndex = -1;
-		Flags = ShardRecordFlags.None;
-	}
-
+public record struct ShardTOCRecordV2 {
 	public int NameIndex { get; init; }
 	public int VersionIndex { get; init; }
 	public Hash Hash { get; init; }
@@ -28,4 +14,17 @@ public record struct ShardTOCRecord {
 	public int BlockCount { get; init; }
 	public int EncoderIndex { get; init; }
 	public ShardRecordFlags Flags { get; set; }
+
+	public ShardTOCRecord ToLatest() {
+		return new ShardTOCRecord {
+			NameIndex = NameIndex,
+			VersionIndex = VersionIndex,
+			Hash = Hash,
+			Size = Size,
+			BlockIndex = BlockIndex,
+			BlockCount = BlockCount,
+			EncoderIndex = EncoderIndex,
+			Flags = Flags,
+		};
+	}
 }
