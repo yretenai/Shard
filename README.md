@@ -1,3 +1,3 @@
 # Shard
 
-Create versioned mega-bundles for archiving incremental files 
+A SOLID Archive designed for deduplicating blocks of data, specialized for saving multiple versions of the same thing.
