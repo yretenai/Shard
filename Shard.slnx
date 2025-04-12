@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/Plugins/">
+    <Project Path="Plugins/Shard.MinecraftAnvil/Shard.MinecraftAnvil.csproj" />
+    <Project Path="Plugins/Shard.Zip/Shard.Zip.csproj" />
+  </Folder>
+  <Project Path="DragonLib/DragonLib/DragonLib.csproj" />
+  <Project Path="Shard.SDK/Shard.SDK.csproj" />
+  <Project Path="Shard/Shard.csproj" />
+  <Project Path="Sharder/Sharder.csproj" />
+</Solution>
