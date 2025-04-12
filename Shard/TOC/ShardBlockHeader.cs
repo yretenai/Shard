@@ -21,10 +21,10 @@ public record struct ShardBlockHeader {
 			if (Version >= ShardBlockVersion.Waterfall) {
 				return CompressionType;
 			}
-			
-			#pragma warning disable CS0618
+
+		#pragma warning disable CS0618
 			return ((ShardLegacyCompressType) CompressionType).ToWaterfall();
-			#pragma warning restore CS0618
+		#pragma warning restore CS0618
 		}
 	}
 }

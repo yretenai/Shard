@@ -438,8 +438,7 @@ public sealed partial class ShardArchive : IShardArchive, IDisposable {
 
 		CurrentBlockStream?.Flush();
 
-		using var stream = new FileStream(Path.Combine(ShardPath, $"{Name}.shardtoc"), FileMode.Open, FileAccess.ReadWrite, FileShare.Read);
-		stream.SetLength(0);
+		using var stream = new FileStream(Path.Combine(ShardPath, $"{Name}.shardtoc"), FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
 		stream.Write(MemoryMarshal.AsBytes(MemoryMarshal.CreateReadOnlySpan(ref header, 1)));
 		stream.Align(Header.HeaderAlignment);
 		stream.Write(MemoryMarshal.AsBytes(compressInfo));
