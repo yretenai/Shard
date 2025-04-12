@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MPL-2.0
 
+using System.Globalization;
 using DragonLib;
 using DragonLib.CommandLine;
 using Serilog;
@@ -22,7 +23,9 @@ internal record ListShardCommand : ShardCommand {
 
 	private void ListVersion(string version) {
 		foreach (var record in Archive.GetRecordsForVersion(version)) {
-			Log.Information("[{Version}] {Path} - {Size} ({Blocks} blocks) - {Hash}", version, record.Name, record.Record.Size.GetHumanReadableBytes(), record.BlockHashes.Count(), record.Hash.ToString());
+			var blockSize = record.BlockHashes.Select(x => (long) Archive.Blocks[Archive.BlockHashMap[x]].Footer.CompressedSize).Sum();
+			var ratio = (blockSize / (float) record.Record.Size * 100).ToString("F2", CultureInfo.InvariantCulture);
+			Log.Information("[{Version}] {Path} - {Size} ({Blocks} blocks. {BlockSize} - {Ratio}%) - {Hash}", version, record.Name, record.Record.Size.GetHumanReadableBytes(), record.BlockHashes.Count(), blockSize.GetHumanReadableBytes(), ratio, record.Hash.ToString());
 		}
 
 		Log.Information("--------------------------");
