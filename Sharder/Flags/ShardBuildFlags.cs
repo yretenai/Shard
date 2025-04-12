@@ -2,13 +2,13 @@
 
 using DragonLib.CommandLine;
 using Shard;
-using Shard.TOC;
+using Waterfall.Compression;
 
 namespace Sharder.Flags;
 
 internal record ShardBuildFlags : ShardIOFlags {
 	[Flag("com", Help = "Compression Type to use")]
-	public ShardCompressType CompressionType { get; set; } = ShardCompressType.ZStd;
+	public CompressionType CompressionType { get; set; } = ShardArchive.DEFAULT_COMPRESSION;
 
 	[Flag("block-size", Help = "Size in bytes of individual blocks")]
 	public int BlockSize { get; set; } = ShardArchive.DEFAULT_BLOCK_SIZE;

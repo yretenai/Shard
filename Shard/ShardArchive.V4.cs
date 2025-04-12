@@ -7,22 +7,26 @@ using System.Text;
 using Blake3;
 using DragonLib;
 using Shard.TOC;
+using Waterfall.Compression;
 
 namespace Shard;
 
 public partial class ShardArchive {
-	private void LoadTOCV4(Stream toc) {
+	private void LoadTOCV4(Stream toc, bool waterfall) {
 		Span<ShardTOCCompressInfo> header = stackalloc ShardTOCCompressInfo[1];
 		toc.ReadExactly(MemoryMarshal.AsBytes(header));
 
 		var theToc = toc;
+	#pragma warning disable CS0618 // Type or member is obsolete
+		var compressType = waterfall ? header[0].CompressType : ((ShardLegacyCompressType) header[0].CompressType).ToWaterfall();
+	#pragma warning restore CS0618 // Type or member is obsolete
 		try {
-			if (header[0].CompressType != ShardCompressType.None) {
+			if (compressType != CompressionType.None) {
 				using var fullBuffer = MemoryPool<byte>.Shared.Rent(header[0].CompressSize);
-				var slice = fullBuffer.Memory.Span[..header[0].CompressSize];
-				toc.ReadExactly(slice);
+				var slice = fullBuffer.Memory[..header[0].CompressSize];
+				toc.ReadExactly(slice.Span);
 				theToc = new MemoryStream();
-				theToc.Write(DecompressData(header[0].CompressType, slice, (int) header[0].Size, out var disposable));
+				theToc.Write(DecompressData(compressType, slice, (int) header[0].Size, out var disposable).Span);
 				theToc.Position = 0;
 				disposable?.Dispose();
 			}
@@ -97,7 +101,7 @@ public partial class ShardArchive {
 				}
 			}
 		} finally {
-			if (header[0].CompressType != ShardCompressType.None) {
+			if (compressType != CompressionType.None) {
 				theToc.Dispose();
 			}
 		}

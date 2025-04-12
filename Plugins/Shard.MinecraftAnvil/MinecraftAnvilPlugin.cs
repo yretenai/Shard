@@ -19,8 +19,11 @@ public class MinecraftAnvilPlugin : ShardPlugin {
 	public bool CanProcess(Stream stream, string path, ShardRecordMetadata metadata) => (path.EndsWith(".mca", StringComparison.OrdinalIgnoreCase) || path.EndsWith(".mcr", StringComparison.OrdinalIgnoreCase)) && stream.Length >= 0x2000;
 
 	public unsafe void Decode(Stream stream, string path, IShardArchive archive, ShardRecordMetadata metadata) {
+		using var newRegionBufferRaw = MemoryPool<byte>.Shared.Rent(0x3000);
+		var newRegionBufferMem = newRegionBufferRaw.Memory[..0x3000];
+		var newRegionBuffer = MemoryMarshal.Cast<byte, uint>(newRegionBufferMem.Span);
+
 		Span<uint> regionBuffer = stackalloc uint[0x800];
-		Span<uint> newRegionBuffer = stackalloc uint[0xC00];
 		stream.ReadExactly(MemoryMarshal.AsBytes(regionBuffer));
 
 		var header = MemoryMarshal.Cast<uint, HeaderEntry>(newRegionBuffer[..0x800]);
@@ -78,11 +81,11 @@ public class MinecraftAnvilPlugin : ShardPlugin {
 		}
 
 		// save timestamps.
-		archive.AddRecord(path, MemoryMarshal.AsBytes(newRegionBuffer), new ShardRecordMetadata { Encoder = Encoder });
+		archive.AddRecord(path, newRegionBufferMem, new ShardRecordMetadata { Encoder = Encoder });
 		archive.AddRecord($"{path}.chunks", outputTmp.ToArray(), new ShardRecordMetadata { Flags = ShardRecordFlags.Hidden });
 	}
 
-	public unsafe Span<byte> Encode(Span<byte> data, IShardRecord record, IShardArchive archive) {
+	public unsafe Memory<byte> Encode(Memory<byte> data, IShardRecord record, IShardArchive archive) {
 		var output = new MemoryStream();
 
 		Span<uint> regionBuffer = stackalloc uint[0x400];
@@ -90,13 +93,13 @@ public class MinecraftAnvilPlugin : ShardPlugin {
 		Span<byte> headerBuffer = stackalloc byte[5];
 
 		output.Write(MemoryMarshal.AsBytes(regionBuffer));
-		output.Write(data[0x800..]); // write timestamps
+		output.Write(data.Span[0x800..]); // write timestamps
 		var chunks = archive.GetRecord($"{record.Name}.chunks", record.Version);
 		if (chunks.Length == 0) {
 			return output.ToArray();
 		}
 
-		var header = MemoryMarshal.Cast<byte, HeaderEntry>(data[..0x800]);
+		var header = MemoryMarshal.Cast<byte, HeaderEntry>(data.Span[..0x800]);
 
 		for (var i = 0x0; i < 0x400; ++i) {
 			var buffer = chunks.Slice(header[i].Offset, header[i].Size);
@@ -104,11 +107,11 @@ public class MinecraftAnvilPlugin : ShardPlugin {
 			using var compressBuffer = MemoryPool<byte>.Shared.Rent(buffer.Length); // realistically it will never be larger than the whole file size.
 			using var fixedHandle = compressBuffer.Memory.Pin();
 			using var compressedStream = new UnmanagedMemoryStream((byte*) fixedHandle.Pointer, buffer.Length);
-			fixed (byte* bufPin = &buffer.GetPinnableReference()) {
-				using var bufferStream = new UnmanagedMemoryStream(bufPin, buffer.Length);
-				using var zlib = new ZLibStream(bufferStream, CompressionLevel.Fastest);
-				zlib.CopyTo(compressedStream);
-			}
+
+			using var bufPin = buffer.Pin();
+			using var bufferStream = new UnmanagedMemoryStream((byte*) bufPin.Pointer, buffer.Length);
+			using var zlib = new ZLibStream(bufferStream, CompressionLevel.Fastest);
+			zlib.CopyTo(compressedStream);
 
 			var encodedOffset = ((uint) output.Position >> 12) << 8;
 			var len = (uint) compressedStream.Position + 5; // stream len + size + encoding

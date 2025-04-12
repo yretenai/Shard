@@ -2,6 +2,7 @@
 
 using System.Runtime.InteropServices;
 using Blake3;
+using Waterfall.Compression;
 
 namespace Shard.TOC;
 
@@ -11,7 +12,19 @@ public record struct ShardBlockHeader {
 	public ShardBlockVersion Version { get; init; }
 	public int Size { get; init; }
 	public int CompressedSize { get; init; }
-	public ShardCompressType CompressionType { get; set; }
+	public CompressionType CompressionType { get; set; }
 	public Hash BlockHash { get; init; }
 	public Hash CompressedBlockHash { get; init; }
+
+	public CompressionType LatestCompressionType {
+		get {
+			if (Version >= ShardBlockVersion.Waterfall) {
+				return CompressionType;
+			}
+			
+			#pragma warning disable CS0618
+			return ((ShardLegacyCompressType) CompressionType).ToWaterfall();
+			#pragma warning restore CS0618
+		}
+	}
 }

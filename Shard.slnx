@@ -7,4 +7,5 @@
   <Project Path="Shard.SDK/Shard.SDK.csproj" />
   <Project Path="Shard/Shard.csproj" />
   <Project Path="Sharder/Sharder.csproj" />
+  <Project Path="Waterfall/Waterfall/Waterfall.csproj" />
 </Solution>

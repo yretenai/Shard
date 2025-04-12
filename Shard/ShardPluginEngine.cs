@@ -59,7 +59,7 @@ public static class ShardPluginEngine {
 		}
 	}
 
-	public static Span<byte> Encode(string pluginName, IShardRecord record, Span<byte> data, ShardArchive archive) {
+	public static Memory<byte> Encode(string pluginName, IShardRecord record, Memory<byte> data, ShardArchive archive) {
 		if (Plugins.TryGetValue(pluginName, out var plugin) && plugin.Plugin.CanRecode) {
 			return plugin.Plugin.Encode(data, record, archive);
 		}

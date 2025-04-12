@@ -3,6 +3,7 @@
 using System.Buffers;
 using System.Runtime.InteropServices;
 using Shard.TOC;
+using Waterfall.Compression;
 
 namespace Shard;
 
@@ -11,12 +12,16 @@ public partial class ShardArchive {
 		Span<ShardTOCCompressInfo> header = stackalloc ShardTOCCompressInfo[1];
 		toc.ReadExactly(MemoryMarshal.AsBytes(header));
 
-		if (header[0].CompressType != ShardCompressType.None) {
+	#pragma warning disable CS0618 // Type or member is obsolete
+		var compressType = ((ShardLegacyCompressType) header[0].CompressType).ToWaterfall();
+	#pragma warning restore CS0618 // Type or member is obsolete
+
+		if (compressType != CompressionType.None) {
 			using var fullBuffer = MemoryPool<byte>.Shared.Rent(header[0].CompressSize);
-			var slice = fullBuffer.Memory.Span[..header[0].CompressSize];
-			toc.ReadExactly(slice);
+			var slice = fullBuffer.Memory[..header[0].CompressSize];
+			toc.ReadExactly(slice.Span);
 			using var newToc = new MemoryStream();
-			newToc.Write(DecompressData(header[0].CompressType, slice, (int) header[0].Size, out var disposable));
+			newToc.Write(DecompressData(compressType, slice, (int) header[0].Size, out var disposable).Span);
 			newToc.Position = 0;
 			disposable?.Dispose();
 			LoadTOCV2(newToc);

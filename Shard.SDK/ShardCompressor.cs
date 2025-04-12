@@ -3,6 +3,6 @@
 namespace Shard.SDK;
 
 public interface ShardCompressor {
-	public int Decompress(ReadOnlySpan<byte> input, Span<byte> output);
-	public Span<byte> Compress(ReadOnlySpan<byte> input, out IDisposable? disposable);
+	public int Decompress(ReadOnlyMemory<byte> input, Memory<byte> output);
+	public Memory<byte> Compress(ReadOnlyMemory<byte> input, out IDisposable? disposable);
 }

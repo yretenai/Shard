@@ -50,9 +50,9 @@ public class ZipPlugin : ShardPlugin {
 				Attributes = entry.Header.ExternalFileAttributes,
 				Permissions = (entry.Header.ExternalFileAttributes >> 16) & 0x1FF,
 			};
-			archive.ProcessFile(entry.Path, buffer.Memory.Span[..(int) entry.Length], meta);
+			archive.ProcessFile(entry.Path, buffer.Memory[..(int) entry.Length], meta);
 		}
 	}
 
-	public Span<byte> Encode(Span<byte> data, IShardRecord record, IShardArchive archive) => throw new NotSupportedException();
+	public Memory<byte> Encode(Memory<byte> data, IShardRecord record, IShardArchive archive) => throw new NotSupportedException();
 }

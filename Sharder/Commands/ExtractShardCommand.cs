@@ -28,7 +28,7 @@ internal record ExtractShardCommand : ShardCommand {
 			Log.Information("Writing {Name}", record.Name);
 			using var stream = new FileStream(destPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
 			stream.SetLength(0);
-			stream.Write(data);
+			stream.Write(data.Span);
 		}
 	}
 }

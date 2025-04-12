@@ -30,8 +30,8 @@ public class GenericShardPlugin : ShardPlugin {
 			};
 		}
 
-		archive.AddRecord(path, buffer.Memory.Span[..(int) stream.Length], meta);
+		archive.AddRecord(path, buffer.Memory[..(int) stream.Length], meta);
 	}
 
-	public Span<byte> Encode(Span<byte> data, IShardRecord record, IShardArchive archive) => data;
+	public Memory<byte> Encode(Memory<byte> data, IShardRecord record, IShardArchive archive) => data;
 }
