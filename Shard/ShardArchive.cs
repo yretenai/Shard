@@ -22,6 +22,7 @@ public record ShardOptions {
 		BlockSize = ShardArchive.DEFAULT_BLOCK_SIZE,
 		ShardSize = ShardArchive.DEFAULT_SHARD_SIZE,
 		CompressType = ShardArchive.DEFAULT_COMPRESSION,
+		CompressionLevel = ShardArchive.DEFAULT_COMPRESSION_LEVEL,
 		Alignment = ShardArchive.DEFAULT_ALIGNMENT,
 		HeaderAlignment = ShardArchive.DEFAULT_HEADER_ALIGNMENT,
 	};
@@ -29,6 +30,7 @@ public record ShardOptions {
 	public int BlockSize { get; init; }
 	public long ShardSize { get; init; }
 	public CompressionType CompressType { get; init; }
+	public CompressionLevel CompressionLevel { get; init; }
 	public bool IsReadOnly { get; init; }
 	public ushort Alignment { get; init; }
 	public ushort HeaderAlignment { get; init; }
@@ -41,6 +43,7 @@ public sealed partial class ShardArchive : IShardArchive, IDisposable {
 	public const long DEFAULT_SHARD_SIZE = Extensions.OneGiB * 16;
 	public const int DEFAULT_BLOCK_SIZE = (int) Extensions.OneMiB;
 	public const CompressionType DEFAULT_COMPRESSION = CompressionType.Zstd;
+	public const CompressionLevel DEFAULT_COMPRESSION_LEVEL = CompressionLevel.Optimal;
 	private const long MAGIC = 0x434F544452414853;
 
 	public ShardArchive(string name, string path, ShardOptions options) {
@@ -51,6 +54,7 @@ public sealed partial class ShardArchive : IShardArchive, IDisposable {
 		Log.Information("Loading shard archive {Name} at {Path}", Name, ShardPath);
 
 		CompressType = options.CompressType;
+		CompressLevel = options.CompressionLevel;
 		CustomCompressor = options.CustomCompressor;
 		IsReadOnly = options.IsReadOnly;
 
@@ -166,6 +170,7 @@ public sealed partial class ShardArchive : IShardArchive, IDisposable {
 	public string ShardPath { get; }
 	public string Name { get; }
 	public CompressionType CompressType { get; }
+	public CompressionLevel CompressLevel { get; init; }
 	public ShardCompressor? CustomCompressor { get; }
 	public bool IsReadOnly { get; }
 	public List<ShardTOCRecord> Records { get; }
@@ -535,7 +540,7 @@ public sealed partial class ShardArchive : IShardArchive, IDisposable {
 		{
 			var compressed = MemoryPool<byte>.Shared.Rent(slice.Length + 0x100);
 			disposable = compressed;
-			var n = CompressionHelper.Compress(providedType, compressed.Memory, slice, CompressionLevel.SmallestSize);
+			var n = CompressionHelper.Compress(providedType, compressed.Memory, slice, CompressLevel);
 			if (n >= slice.Length || n <= 0) {
 				return slice;
 			}

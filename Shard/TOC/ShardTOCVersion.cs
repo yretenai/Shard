@@ -10,5 +10,5 @@ public enum ShardTOCVersion : uint {
 	StoreAttributes,
 	CustomCompressor,
 	Waterfall,
-	Latest = CustomCompressor,
+	Latest = Waterfall,
 }
