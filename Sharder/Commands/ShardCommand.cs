@@ -26,9 +26,7 @@ internal abstract record ShardCommand : IDisposable {
 		GC.SuppressFinalize(this);
 	}
 
-	~ShardCommand() {
-		Dispose(false);
-	}
+	~ShardCommand() => Dispose(false);
 
 	protected virtual void Dispose(bool disposing) {
 		if (disposing) {

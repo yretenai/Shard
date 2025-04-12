@@ -15,12 +15,12 @@ internal record BuildShardCommand : ShardCommand {
 		if (new FileInfo(flags.Path).Attributes.HasFlag(FileAttributes.Directory)) {
 			var baseUri = new Uri(flags.Path.TrimEnd('/', '\\') + '/');
 			foreach (var file in Directory.GetFiles(flags.Path, flags.Filter, new EnumerationOptions {
-				         IgnoreInaccessible = true,
-				         MatchCasing = MatchCasing.PlatformDefault,
-				         RecurseSubdirectories = flags.Recursive,
-				         ReturnSpecialDirectories = false,
-				         MatchType = MatchType.Simple,
-			         })) {
+				IgnoreInaccessible = true,
+				MatchCasing = MatchCasing.PlatformDefault,
+				RecurseSubdirectories = flags.Recursive,
+				ReturnSpecialDirectories = false,
+				MatchType = MatchType.Simple,
+			})) {
 				ResolveVersion(flags, file);
 				var uri = new Uri(file);
 				var relative = baseUri.MakeRelativeUri(uri);

@@ -7,8 +7,7 @@ namespace Sharder.Commands;
 
 [Command(typeof(ShardFlags), "rebuild", "Rebuilds TOC to latest version")]
 internal record RebuildShardCommand : ShardCommand {
-	public RebuildShardCommand(ShardFlags flags) : base(flags, false) {
+	public RebuildShardCommand(ShardFlags flags) : base(flags, false) =>
 		// rebuild happens anyway on load, we just have to save it.
 		Archive.Flush();
-	}
 }

@@ -26,6 +26,7 @@ public partial class ShardArchive {
 			foreach (var record in records) {
 				Records.Add(record.ToLatest());
 			}
+
 			toc.Align(Header.HeaderAlignment);
 		}
 

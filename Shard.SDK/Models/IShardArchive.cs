@@ -5,7 +5,6 @@ namespace Shard.SDK.Models;
 // ReSharper disable UnusedMemberInSuper.Global
 public interface IShardArchive {
 	public IEnumerable<IShardRecord> Records { get; }
-
 	public Span<byte> GetRecord(IShardRecord record);
 	public Span<byte> GetRecord(string record, string version);
 	public void AddRecord(string name, Span<byte> data, ShardRecordMetadata metadata);

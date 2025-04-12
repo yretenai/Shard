@@ -84,9 +84,7 @@ public sealed class ZipFile : IDisposable {
 	public List<ZipEntry> Entries { get; set; } = [];
 	public Stream Data { get; set; }
 
-	public void Dispose() {
-		Data.Dispose();
-	}
+	public void Dispose() => Data.Dispose();
 
 	public Stream Open(ZipEntry entry) {
 		if ((entry.Header.Flags & 0b1) == 1) {

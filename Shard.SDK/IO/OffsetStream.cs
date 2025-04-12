@@ -59,7 +59,8 @@ public class OffsetStream : Stream {
 	public override int Read(byte[] buffer, int offset, int count) {
 		ObjectDisposedException.ThrowIf(Disposed, this);
 
-		if (Position < 0) { // stream is reused oh no.
+		if (Position < 0) {
+			// stream is reused oh no.
 			Seek(0, SeekOrigin.Begin);
 		}
 
@@ -74,11 +75,11 @@ public class OffsetStream : Stream {
 		ObjectDisposedException.ThrowIf(Disposed, this);
 
 		var absolutePosition = origin switch {
-			                       SeekOrigin.Begin => Start + offset,
-			                       SeekOrigin.Current => BaseStream.Position + offset,
-			                       SeekOrigin.End => End + offset,
-			                       _ => throw new IOException("Unknown seek origin"),
-		                       };
+			SeekOrigin.Begin => Start + offset,
+			SeekOrigin.Current => BaseStream.Position + offset,
+			SeekOrigin.End => End + offset,
+			_ => throw new IOException("Unknown seek origin"),
+		};
 
 		if (absolutePosition > End) {
 			throw new IOException("Attempting to seek past the end of the stream");
@@ -92,11 +93,7 @@ public class OffsetStream : Stream {
 		return Position;
 	}
 
-	public override void SetLength(long value) {
-		throw new IOException("Read only");
-	}
+	public override void SetLength(long value) => throw new IOException("Read only");
 
-	public override void Write(byte[] buffer, int offset, int count) {
-		throw new IOException("Read only");
-	}
+	public override void Write(byte[] buffer, int offset, int count) => throw new IOException("Read only");
 }

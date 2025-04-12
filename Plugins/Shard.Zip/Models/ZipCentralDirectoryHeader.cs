@@ -30,8 +30,8 @@ public readonly record struct ZipCentralDirectoryHeader {
 			var m = (ModTime & 0x7E0) >> 5;
 			var h = (ModTime & 0xF800) >> 11;
 			var d = ModDate & 0x1F;
-			var M = ( ModDate & 0x1E0) >> 5;
-			var y = ( ModDate & 0xFE00) >> 9;
+			var M = (ModDate & 0x1E0) >> 5;
+			var y = (ModDate & 0xFE00) >> 9;
 			return new DateTimeOffset(y + 1980, M, d, h, m, s, TimeSpan.Zero);
 		}
 	}

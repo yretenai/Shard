@@ -20,12 +20,12 @@ public static class ShardPluginEngine {
 
 	private static void LoadFromDirectory(string path) {
 		foreach (var dll in Directory.GetFiles(path, "*.dll", new EnumerationOptions {
-			         RecurseSubdirectories = true,
-			         ReturnSpecialDirectories = false,
-			         IgnoreInaccessible = true,
-			         MatchCasing = MatchCasing.PlatformDefault,
-			         MatchType = MatchType.Simple,
-		         })) {
+			RecurseSubdirectories = true,
+			ReturnSpecialDirectories = false,
+			IgnoreInaccessible = true,
+			MatchCasing = MatchCasing.PlatformDefault,
+			MatchType = MatchType.Simple,
+		})) {
 			LoadPluginFromAssembly(Context.LoadFromAssemblyPath(dll));
 		}
 	}

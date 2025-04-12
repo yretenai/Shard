@@ -14,8 +14,8 @@ public readonly record struct ShardTOCRecordV1 {
 	public int BlockIndex { get; init; }
 	public int BlockCount { get; init; }
 
-	public ShardTOCRecord ToLatest() {
-		return new ShardTOCRecord {
+	public ShardTOCRecord ToLatest() =>
+		new() {
 			NameIndex = NameIndex,
 			VersionIndex = VersionIndex,
 			Hash = Hash,
@@ -23,5 +23,4 @@ public readonly record struct ShardTOCRecordV1 {
 			BlockIndex = BlockIndex,
 			BlockCount = BlockCount,
 		};
-	}
 }

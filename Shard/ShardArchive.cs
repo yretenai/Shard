@@ -65,14 +65,14 @@ public sealed partial class ShardArchive : IShardArchive, IDisposable {
 				Alignment = options.Alignment,
 				HeaderAlignment = options.HeaderAlignment,
 			};
-			Records = new List<ShardTOCRecord>();
-			Versions = new List<string>();
-			Names = new List<string>();
-			Blocks = new List<ShardTOCBlock>();
-			BlockIndices = new List<int>();
-			BlockHashMap = new Dictionary<Hash, int>();
-			RecordHashMap = new Dictionary<Hash, ShardTOCHashMap>();
-			BlockStreams = new List<Stream>();
+			Records = [];
+			Versions = [];
+			Names = [];
+			Blocks = [];
+			BlockIndices = [];
+			BlockHashMap = [];
+			RecordHashMap = [];
+			BlockStreams = [];
 			Flush();
 			DumpTOCMetrics();
 			return;
@@ -83,7 +83,8 @@ public sealed partial class ShardArchive : IShardArchive, IDisposable {
 		toc.ReadExactly(MemoryMarshal.AsBytes(header));
 		Header = header[0];
 
-		if (Header.Magic != MAGIC) { // Header.Magic != SHARDTOC
+		if (Header.Magic != MAGIC) {
+			// Header.Magic != SHARDTOC
 			throw new InvalidDataException("Invalid magic number.");
 		}
 
@@ -324,9 +325,7 @@ public sealed partial class ShardArchive : IShardArchive, IDisposable {
 		}
 	}
 
-	public void ProcessFile(string name, Stream data, ShardRecordMetadata? metadata = null) {
-		ShardPluginEngine.Decode(name, data, this, metadata.GetValueOrDefault());
-	}
+	public void ProcessFile(string name, Stream data, ShardRecordMetadata? metadata = null) => ShardPluginEngine.Decode(name, data, this, metadata.GetValueOrDefault());
 
 	private void DumpTOCMetrics() {
 		Log.Information("--------------------------");
@@ -493,8 +492,8 @@ public sealed partial class ShardArchive : IShardArchive, IDisposable {
 		return record.EncoderIndex < 0 ? data : ShardPluginEngine.Encode(Names[record.EncoderIndex], RecordToVirtual(record), data, this);
 	}
 
-	private IShardRecord RecordToVirtual(ShardTOCRecord record) {
-		return new ShardRecord {
+	private IShardRecord RecordToVirtual(ShardTOCRecord record) =>
+		new ShardRecord {
 			Name = Names[record.NameIndex],
 			Version = Versions[record.VersionIndex],
 			Encoder = record.EncoderIndex == -1 ? null : Names[record.EncoderIndex],
@@ -506,7 +505,6 @@ public sealed partial class ShardArchive : IShardArchive, IDisposable {
 			Attributes = record.Attributes,
 			Record = record,
 		};
-	}
 
 	private unsafe Span<byte> CompressData(Span<byte> slice, ShardCompressType providedType, out ShardCompressType type, out IDisposable? disposable) {
 		type = ShardCompressType.None;
@@ -523,6 +521,7 @@ public sealed partial class ShardArchive : IShardArchive, IDisposable {
 					type = CompressType;
 					return compressed;
 				}
+
 				disposable?.Dispose();
 				disposable = null;
 				break;
@@ -533,12 +532,12 @@ public sealed partial class ShardArchive : IShardArchive, IDisposable {
 			case ShardCompressType.Snappy: {
 				// ReSharper disable once SwitchExpressionHandlesSomeKnownEnumValuesWithExceptionInDefault
 				var compressed = Iron.Compress(CompressType switch {
-					                               ShardCompressType.ZStd => Codec.Zstd,
-					                               ShardCompressType.LZO => Codec.LZO,
-					                               ShardCompressType.LZ4 => Codec.LZ4,
-					                               ShardCompressType.Snappy => Codec.Snappy,
-					                               _ => throw new UnreachableException(),
-				                               }, slice);
+					ShardCompressType.ZStd => Codec.Zstd,
+					ShardCompressType.LZO => Codec.LZO,
+					ShardCompressType.LZ4 => Codec.LZ4,
+					ShardCompressType.Snappy => Codec.Snappy,
+					_ => throw new UnreachableException(),
+				}, slice);
 				if (compressed.Length < slice.Length) {
 					disposable = compressed;
 					type = CompressType;
@@ -594,12 +593,12 @@ public sealed partial class ShardArchive : IShardArchive, IDisposable {
 			case ShardCompressType.Snappy: {
 				// ReSharper disable once SwitchExpressionHandlesSomeKnownEnumValuesWithExceptionInDefault
 				var compressed = Iron.Decompress(type switch {
-					                                 ShardCompressType.ZStd => Codec.Zstd,
-					                                 ShardCompressType.LZO => Codec.LZO,
-					                                 ShardCompressType.LZ4 => Codec.LZ4,
-					                                 ShardCompressType.Snappy => Codec.Snappy,
-					                                 _ => throw new UnreachableException(),
-				                                 }, slice);
+					ShardCompressType.ZStd => Codec.Zstd,
+					ShardCompressType.LZO => Codec.LZO,
+					ShardCompressType.LZ4 => Codec.LZ4,
+					ShardCompressType.Snappy => Codec.Snappy,
+					_ => throw new UnreachableException(),
+				}, slice);
 				disposable = compressed;
 				return compressed.AsSpan();
 			}

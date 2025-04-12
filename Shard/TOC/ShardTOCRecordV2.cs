@@ -15,8 +15,8 @@ public record struct ShardTOCRecordV2 {
 	public int EncoderIndex { get; init; }
 	public ShardRecordFlags Flags { get; set; }
 
-	public ShardTOCRecord ToLatest() {
-		return new ShardTOCRecord {
+	public ShardTOCRecord ToLatest() =>
+		new() {
 			NameIndex = NameIndex,
 			VersionIndex = VersionIndex,
 			Hash = Hash,
@@ -26,5 +26,4 @@ public record struct ShardTOCRecordV2 {
 			EncoderIndex = EncoderIndex,
 			Flags = Flags,
 		};
-	}
 }
