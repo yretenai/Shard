@@ -1,4 +1,6 @@
-// SPDX-License-Identifier: MPL-2.0
+// SPDX-FileCopyrightText: 2025 Np-93/237 (Yretenai/Legiayayana/Chronovore)
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 using System.IO.Compression;
 using System.Runtime.CompilerServices;
@@ -96,8 +98,8 @@ public sealed class ZipFile : IDisposable {
 		var offset = (long) entry.Header.Offset;
 		var zipInfoComposite = entry.Extra.FirstOrDefault(x => x.Value is Zip64ExtendedInformation);
 		if (zipInfoComposite.Value is Zip64ExtendedInformation zipInfo) {
-			Span<long> value = stackalloc long[3] { zipInfo.UncompressedSize, zipInfo.CompressedSize, zipInfo.Offset };
-			Span<int> remapId = stackalloc int[3] { -1, -1, -1 };
+			Span<long> value = [zipInfo.UncompressedSize, zipInfo.CompressedSize, zipInfo.Offset];
+			Span<int> remapId = [-1, -1, -1];
 			var id = 0;
 			if (entry.Header.UncompressedSize == uint.MaxValue) {
 				remapId[0] = id++;

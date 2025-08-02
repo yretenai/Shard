@@ -1,4 +1,6 @@
-// SPDX-License-Identifier: MPL-2.0
+// SPDX-FileCopyrightText: 2025 Np-93/237 (Yretenai/Legiayayana/Chronovore)
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 using DragonLib.CommandLine;
 
@@ -16,11 +18,11 @@ internal record ShardIOFlags : ShardFlags {
 	[Flag("paths", Positional = 2, Help = "The paths to process")]
 	public string? Path { get; set; } = null!;
 
-	[Flag("version", Positional = 3, Help = "The version of to save as")]
-	public string? Version { get; set; }
+	[Flag("in-version", Positional = 3, Help = "The version to process")]
+	public string? InVersion { get; set; }
 }
 
 internal record ShardIFlags : ShardFlags {
-	[Flag("version", Positional = 2, Help = "The version of to save as")]
-	public string? Version { get; set; }
+	[Flag("in-version", Positional = 2, Help = "The version to process")]
+	public string? InVersion { get; set; }
 }

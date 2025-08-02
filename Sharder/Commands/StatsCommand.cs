@@ -1,4 +1,6 @@
-// SPDX-License-Identifier: MPL-2.0
+// SPDX-FileCopyrightText: 2025 Np-93/237 (Yretenai/Legiayayana/Chronovore)
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 using DragonLib;
 using DragonLib.CommandLine;

@@ -1,4 +1,6 @@
-// SPDX-License-Identifier: MPL-2.0
+// SPDX-FileCopyrightText: 2025 Np-93/237 (Yretenai/Legiayayana/Chronovore)
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 using DragonLib.CommandLine;
 using Sharder.Flags;
@@ -39,7 +41,7 @@ internal record BuildShardCommand : ShardCommand {
 
 	private void ResolveVersion(ShardBuildFlags flags, string file) {
 		var constructed = new List<string?> {
-			flags.Version,
+			flags.InVersion,
 		};
 
 		if (flags.FilenameAsVersion) {

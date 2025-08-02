@@ -1,4 +1,6 @@
-// SPDX-License-Identifier: MPL-2.0
+// SPDX-FileCopyrightText: 2025 Np-93/237 (Yretenai/Legiayayana/Chronovore)
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 using Waterfall.Compression;
 
@@ -39,8 +41,7 @@ public static class ShardCompressTypeExtensions {
 			CompressionType.None => ShardLegacyCompressType.None,
 			CompressionType.Zstd => ShardLegacyCompressType.ZStd,
 			CompressionType.LZO2 => ShardLegacyCompressType.LZO,
-			CompressionType.LZ4 => ShardLegacyCompressType.LZ4,
-			CompressionType.LZ4HC => ShardLegacyCompressType.LZ4,
+			CompressionType.LZ4 or CompressionType.LZ4HC => ShardLegacyCompressType.LZ4,
 			CompressionType.Zlib => ShardLegacyCompressType.ZLib,
 			_ => throw new NotSupportedException(),
 		};

@@ -1,4 +1,6 @@
-// SPDX-License-Identifier: MPL-2.0
+// SPDX-FileCopyrightText: 2025 Np-93/237 (Yretenai/Legiayayana/Chronovore)
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 using System.Globalization;
 using DragonLib;
@@ -11,8 +13,8 @@ namespace Sharder.Commands;
 [Command(typeof(ShardIFlags), "list", "Lists files in a shard")]
 internal record ListShardCommand : ShardCommand {
 	public ListShardCommand(ShardIFlags flags) : base(flags) {
-		if (!string.IsNullOrEmpty(flags.Version)) {
-			ListVersion(flags.Version);
+		if (!string.IsNullOrEmpty(flags.InVersion)) {
+			ListVersion(flags.InVersion);
 			return;
 		}
 

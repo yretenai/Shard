@@ -1,4 +1,6 @@
-// SPDX-License-Identifier: MPL-2.0
+// SPDX-FileCopyrightText: 2025 Np-93/237 (Yretenai/Legiayayana/Chronovore)
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 using System.Reflection;
 using System.Runtime.Loader;
@@ -52,10 +54,12 @@ public static class ShardPluginEngine {
 
 	public static void Decode(string name, Stream data, ShardArchive archive, ShardRecordMetadata metadata) {
 		foreach (var plugin in Plugins.Values.OrderByDescending(x => x.Info.Priority).Select(x => x.Plugin)) {
-			if (plugin.CanProcess(data, name, metadata)) {
-				plugin.Decode(data, name, archive, metadata);
-				return;
+			if (!plugin.CanProcess(data, name, metadata)) {
+				continue;
 			}
+
+			plugin.Decode(data, name, archive, metadata);
+			return;
 		}
 	}
 

@@ -1,12 +1,14 @@
-// SPDX-License-Identifier: MPL-2.0
+// SPDX-FileCopyrightText: 2025 Np-93/237 (Yretenai/Legiayayana/Chronovore)
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 using Shard.SDK.Models;
 
 namespace Shard.SDK;
 
 public interface ShardPlugin {
-	public bool CanRecode { get; }
-	public bool CanProcess(Stream stream, string path, ShardRecordMetadata metadata);
-	public void Decode(Stream stream, string path, IShardArchive archive, ShardRecordMetadata metadata);
-	public Memory<byte> Encode(Memory<byte> data, IShardRecord record, IShardArchive archive);
+	bool CanRecode { get; }
+	bool CanProcess(Stream stream, string path, ShardRecordMetadata metadata);
+	void Decode(Stream stream, string path, IShardArchive archive, ShardRecordMetadata metadata);
+	Memory<byte> Encode(Memory<byte> data, IShardRecord record, IShardArchive archive);
 }

@@ -1,4 +1,6 @@
-// SPDX-License-Identifier: MPL-2.0
+// SPDX-FileCopyrightText: 2025 Np-93/237 (Yretenai/Legiayayana/Chronovore)
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 using Blake3;
 
@@ -6,10 +8,10 @@ namespace Shard.SDK.Models;
 
 // ReSharper disable UnusedMemberInSuper.Global
 public interface IShardRecord {
-	public string Name { get; }
-	public string Version { get; }
-	public string? Encoder { get; }
-	public Hash Hash { get; }
-	public IEnumerable<Hash> BlockHashes { get; }
-	public ShardRecordFlags Flags { get; }
+	string Name { get; }
+	string Version { get; }
+	string? Encoder { get; }
+	Hash Hash { get; }
+	IEnumerable<Hash> BlockHashes { get; }
+	ShardRecordFlags Flags { get; }
 }

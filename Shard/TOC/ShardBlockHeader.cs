@@ -1,4 +1,6 @@
-// SPDX-License-Identifier: MPL-2.0
+// SPDX-FileCopyrightText: 2025 Np-93/237 (Yretenai/Legiayayana/Chronovore)
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 using System.Runtime.InteropServices;
 using Blake3;
@@ -18,12 +20,8 @@ public record struct ShardBlockHeader {
 
 	public CompressionType LatestCompressionType {
 		get {
-			if (Version >= ShardBlockVersion.Waterfall) {
-				return CompressionType;
-			}
-
 		#pragma warning disable CS0618
-			return ((ShardLegacyCompressType) CompressionType).ToWaterfall();
+			return Version >= ShardBlockVersion.Waterfall ? CompressionType : ((ShardLegacyCompressType) CompressionType).ToWaterfall();
 		#pragma warning restore CS0618
 		}
 	}

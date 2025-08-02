@@ -1,4 +1,6 @@
-// SPDX-License-Identifier: MPL-2.0
+// SPDX-FileCopyrightText: 2025 Np-93/237 (Yretenai/Legiayayana/Chronovore)
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 using DragonLib;
 using DragonLib.CommandLine;
@@ -14,13 +16,13 @@ internal record ExtractShardCommand : ShardCommand {
 			throw new InvalidOperationException("Path must be defined.");
 		}
 
-		if (string.IsNullOrEmpty(flags.Version)) {
+		if (string.IsNullOrEmpty(flags.InVersion)) {
 			throw new InvalidOperationException("Version must be defined.");
 		}
 
-		Archive.SetVersion(flags.Version);
+		Archive.SetVersion(flags.InVersion);
 
-		foreach (var record in Archive.GetRecordsForVersion(flags.Version)) {
+		foreach (var record in Archive.GetRecordsForVersion(flags.InVersion)) {
 			var destPath = Path.Combine(flags.Path, record.Name);
 			destPath.EnsureDirectoryExists();
 
